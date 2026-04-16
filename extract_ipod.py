@@ -34,8 +34,30 @@ FONT_LG = ("Courier", 13, "bold")
 def ensure_mutagen() -> None:
     try:
         import mutagen  # noqa: F401
+        return
     except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "mutagen"])
+        pass
+
+    # Try progressively more permissive install strategies
+    strategies = [
+        [sys.executable, "-m", "pip", "install", "--user", "mutagen"],
+        [sys.executable, "-m", "pip", "install", "--user", "--break-system-packages", "mutagen"],
+    ]
+    for cmd in strategies:
+        try:
+            subprocess.check_call(cmd, stderr=subprocess.DEVNULL)
+            import importlib
+            importlib.invalidate_caches()
+            import mutagen  # noqa: F401
+            return
+        except Exception:
+            continue
+
+    sys.exit(
+        "Could not install mutagen automatically.\n"
+        "Run this once, then retry:\n\n"
+        "  pip install --user --break-system-packages mutagen\n"
+    )
 
 
 def sanitize(name: str) -> str:
