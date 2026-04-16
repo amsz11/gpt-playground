@@ -45,12 +45,20 @@ def ensure_mutagen() -> None:
     ]
     for cmd in strategies:
         try:
-            subprocess.check_call(cmd, stderr=subprocess.DEVNULL)
-            import importlib
-            importlib.invalidate_caches()
+            subprocess.check_call(cmd)
+        except Exception:
+            continue
+
+        # User site-packages may not be on sys.path yet — add it and retry
+        import site, importlib
+        user_site = site.getusersitepackages()
+        if user_site not in sys.path:
+            sys.path.insert(0, user_site)
+        importlib.invalidate_caches()
+        try:
             import mutagen  # noqa: F401
             return
-        except Exception:
+        except ImportError:
             continue
 
     sys.exit(
