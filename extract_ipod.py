@@ -257,7 +257,6 @@ def launch_gui() -> None:
 
     def on_done(copied, errors):
         status_var.set(f"done — {copied} extracted" + (f", {errors} errors" if errors else ""))
-        log_append(f"\n  {copied} songs extracted" + (f", {errors} errors." if errors else "."))
         log_append("""
   ██████╗  ██████╗ ███╗   ██╗███████╗
   ██╔══██╗██╔═══██╗████╗  ██║██╔════╝
@@ -266,6 +265,7 @@ def launch_gui() -> None:
   ██████╔╝╚██████╔╝██║ ╚████║███████╗
   ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 """)
+        log_append(f"  {copied} songs extracted" + (f", {errors} errors." if errors else "."))
         extract_btn.configure(state="normal", bg=BTN_BG, fg=BTN_FG)
 
     def start_extract():
